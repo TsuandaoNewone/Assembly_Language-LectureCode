@@ -1,0 +1,32 @@
+STACK SEGMENT 
+STACK ENDS
+DATA SEGMENT
+    SUM DW ?
+DATA ENDS
+CODE SEGMENT
+    ASSUME CS:CODE,DS:DATA,SS:STACK
+START:
+        MOV     AX, DATA
+        MOV     DS, AX
+START1: 
+        XOR     AX, AX
+        MOV     CX, 100
+AGAIN: 
+        ADD     AX, CX
+        LOOP    AGAIN
+        MOV     SUM, AX
+        
+        MOV CX, 10          ; CX????10
+        MOV BX, 10
+DivideLoop:        
+        XOR DX, DX          ; ??????
+        DIV CX              ; AX = AX / 10
+        MOV AX, WORD PTR AL        
+        ADD AL, '0'         ; ??????? 
+        MOV DL, AL
+        MOV AH, 02H
+        INT 21H             ; ????
+        DEC BX              ; ??????
+        JNZ DivideLoop     ; ????,??????????                          
+CODE ENDS
+END START
