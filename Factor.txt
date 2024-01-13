@@ -1,0 +1,43 @@
+DATA SEGMENT
+    N       DW  3
+    RESULT  DW  ?     
+DATA ENDS  
+
+STACK SEGMENT     
+STACK ENDS   
+
+CODE SEGMENT 'CODE'
+    ASSUME DS:DATA,SS:STACK,CS:CODE       
+START:
+    MOV AX, DATA
+    MOV DS, AX
+    
+    MOV     BX, N
+    PUSH    BX
+    CALL    FACT
+    POP     RESULT
+       
+     
+CODE ENDS
+FACT    PROC
+        PUSH    AX
+        PUSH    BP
+        MOV     BP, SP
+        MOV     AX, [BP+6]
+        CMP     AX, 0
+        JNE     FACT1
+        INC     AX
+        JMP     FACT2
+    FACT1:
+        DEC     AX
+        PUSH    AX
+        CALL    FACT
+        POP     AX
+        MUL     WORD PTR[BP+6]
+    FACT2:
+        MOV     [BP+6],AX                      
+        POP     BP
+        POP     AX
+        RET
+FACT    ENDP             
+END START

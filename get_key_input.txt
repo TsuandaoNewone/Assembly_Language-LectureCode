@@ -1,0 +1,57 @@
+data segment
+    ; add your data here!
+    pkey db "press any key...$"
+    ykey db "you press y...$"
+    nkey db "you press n...$" 
+    newline db 13, 10, "$" ; Carriage Return (13) and Line Feed (10)
+ends
+
+stack segment
+    dw   128  dup(0)
+ends
+
+code segment
+start:
+    mov ax, data
+    mov ds, ax
+    mov es, ax
+    
+    MOV     DL, OFFSET PKEY
+    MOV     AH, 09H
+    INT     21H
+    
+    
+GET_CHAR:   
+    MOV  	AH, 1
+	INT	    21H
+	CMP  	AL, 'Y'
+	JE  	YES
+	CMP  	AL, 'N'
+    JE	    NO
+	JNE	    GET_CHAR
+YES:
+    CALL    NLINE        
+    MOV     DL, OFFSET YKEY   
+    JMP     RESULT
+NO:
+    CALL    NLINE    
+    MOV     DL, OFFSET NKEY
+    
+RESULT:
+    MOV     AH, 09H
+    INT     21H  
+    mov     ax, 4c00h ; exit to operating system.
+    int     21h    
+ends
+
+NLINE PROC
+    PUSH    AX
+    PUSH    DX
+    MOV     DL, OFFSET NEWLINE
+    MOV     AH, 09H
+    INT     21H
+    POP     DX
+    POP     AX
+    RET    
+NLINE ENDP    
+end start ; set entry point and stop the assembler.

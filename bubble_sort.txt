@@ -1,0 +1,93 @@
+; multi-segment executable file template.
+data segment
+    ARRAY DB 32H, 43H, 54H, 13H, 51H, 92H, 23H, 34H
+    ;COUNT EQU ($-ARRAY)/TYPE ARRAY
+    COUNT DW 08H
+    STRING DB 'H ','$'    
+ends
+
+stack segment
+ends
+
+code segment
+ASSUME  DS:DATA,SS: CODE,CS: CODE
+start:
+    MOV AX, DATA
+    MOV DS, AX
+    MOV CX, COUNT; CH: OUTLOOP CNT
+    DEC CX
+OUTLOOP:
+    MOV DX, CX
+    MOV BX, OFFSET ARRAY
+INLOOP:     
+    MOV AL, [BX]
+    CMP [BX+1],AL
+    JAE NEXT
+    XCHG [BX+1], AL
+    MOV  [BX], AL
+NEXT:    
+    INC BX
+    DEC DX                  ;DX IS A ZERO TIMER
+    JNE INLOOP
+    LOOP OUTLOOP            ;NUMBER OF ITEMS INDICATES LOOP TIMES 
+    MOV CX, COUNT
+    MOV SI, OFFSET ARRAY
+    CALL DISPLAY
+    MOV AX,4C00H
+    INT 21H        
+ends
+
+;***************************************
+;FUNCTION:
+;sort the array        
+;INPUT PARAMETERS:   
+;
+;OUTPUT PARAMETERS:
+
+;***************************************
+DISPLAY PROC
+        MOV SI, OFFSET ARRAY            
+        MOV DH, 2
+        MOV CX, COUNT
+        MOV BL, [SI]
+    ROTATE:            
+        ROL BL, 4
+        MOV AL, BL
+        AND AL, 0FH
+        ADD AL, '0'
+        CMP AL, 39H
+        JBE PRINTCHAR
+        ADD AL, 07H
+    PRINTCHAR:
+        MOV DL, AL
+        MOV AH, 02H
+        INT 21H
+        DEC DH
+        JNE ROTATE 
+        MOV DH, 2
+        INC SI
+        MOV BX, [SI]
+        CALL DSP_STRING
+        LOOP ROTATE     
+        RET
+DISPLAY ENDP        
+
+;***************************************
+;FUNCTION:
+;display "H "       
+;INPUT PARAMETERS:   
+;
+;OUTPUT PARAMETERS:
+;
+;*************************************** 
+DSP_STRING PROC
+           PUSH DX
+           PUSH AX
+           MOV DX, OFFSET STRING
+           MOV AH, 09H
+           INT 21H
+           POP AX
+           POP DX
+           RET
+DSP_STRING ENDP       
+end start  
